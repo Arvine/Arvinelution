@@ -7,119 +7,104 @@ function c810000169.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	c:RegisterEffect(e1)
+	--peffect
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_PZONE)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetCountLimit(1)
-	e2:SetTarget(c810000169.ptg)
-	e2:SetOperation(c810000169.pop)
-	c:RegisterEffect(e2)
-	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_IGNITION)
-	e3:SetRange(LOCATION_MZONE)
-	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e3:SetCountLimit(1)
-	e3:SetTarget(c810000169.target)
-	e3:SetOperation(c810000169.activate)
-	c:RegisterEffect(e3)
-end
-function c810000169.filter1(c)
-	return c:IsFaceup() and c:IsType(TYPE_XYZ)
-end
-function c810000169.ptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c810000169.filter1(chkc) end
-	if chk==0 then return not e:GetHandler():IsLocation(LOCATION_GRAVE)
-		and Duel.IsExistingTarget(c810000169.filter1,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	Duel.SelectTarget(tp,c810000169.filter1,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
-end
-function c810000169.pop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and tc:IsFaceup() and not tc:IsImmuneToEffect(e) and c:IsRelateToEffect(e) then
-		local e1=Effect.CreateEffect(c)
-		e1:SetDescription(aux.Stringid(810000169,0))
-		e1:SetType(EFFECT_TYPE_IGNITION)
-		e1:SetRange(LOCATION_MZONE)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-		e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+RESET_END)
-		e1:SetTarget(c810000169.sptg)
-		e1:SetOperation(c810000169.spop)
-		tc:RegisterEffect(e1)
-	end
-end
-
-function c810000169.filter(c,e,tp)
-	local ct=c.xyz_count
-	return c:GetRank()==e:GetHandler():GetRank() and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
-	and Duel.GetLocationCount(tp,LOCATION_MZONE)>ct-1 and Duel.IsExistingMatchingCard(c810000169.filter2,tp,LOCATION_MZONE,0,ct-1,nil,e,tp)
-end
-function c810000169.filter2(c,e,tp)
-	return c:GetLevel()==e:GetHandler():GetRank()
-end
-function c810000169.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_EXTRA) and c810000169.filter(chkc,e,tp) end
-	if chk==0 then return Duel.IsExistingTarget(c810000169.filter,tp,LOCATION_EXTRA,0,1,nil,e,tp) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectTarget(tp,c810000169.filter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
-	Duel.SetChainLimit(aux.FALSE)
-end
-function c810000169.spop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
-		local ct=tc.xyz_count
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g=Duel.SelectMatchingCard(tp,c810000169.filter2,tp,LOCATION_MZONE,0,ct-1,ct-1,nil,e,tp)
-		g:AddCard(e:GetHandler())
-		local og=e:GetHandler():GetOverlayGroup()
-		if og:GetCount()>0 then
-			Duel.SendtoGrave(og,REASON_RULE)
+	e2:SetTarget(function(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+		if chkc then return chkc:IsLocation(LOCATION_MZONE) and c810000169.filter1(chkc) end
+		if chk==0 then return not e:GetHandler():IsLocation(LOCATION_GRAVE)
+			and Duel.IsExistingTarget(c810000169.filter1,tp,LOCATION_MZONE,0,1,nil) end
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+		Duel.SelectTarget(tp,c810000169.filter1,tp,LOCATION_MZONE,0,1,1,nil)
+	end)
+	e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
+		local c=e:GetHandler()
+		local tc=Duel.GetFirstTarget()
+		if tc:IsRelateToEffect(e) and tc:IsFaceup() and not tc:IsImmuneToEffect(e) and c:IsRelateToEffect(e) then
+			tc:RegisterFlagEffect(810000169,RESET_EVENT+0x1fe0000+RESET_PHASE+RESET_END,0,1)
 		end
-		local e2=Effect.CreateEffect(e:GetHandler())
-		e2:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-		e2:SetType(EFFECT_TYPE_FIELD)
-		e2:SetCode(EFFECT_SPSUMMON_PROC)
-		e2:SetRange(LOCATION_EXTRA)
-		e2:SetOperation(c810000169.xyzop)
-		e2:SetReset(RESET_CHAIN)
-		e2:SetValue(SUMMON_TYPE_XYZ)
-		e2:SetLabelObject(g)
-		tc:RegisterEffect(e2)
-		Duel.XyzSummon(tp,tc,g)
+	end)
+	c:RegisterEffect(e2)
+	--disable
+	local e3=Effect.CreateEffect(c)
+	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e3:SetType(EFFECT_TYPE_QUICK_O)
+	e3:SetCode(EVENT_FREE_CHAIN)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetHintTiming(0,0x1c0)
+	e3:SetCountLimit(1)
+	e3:SetTarget(c810000169.postg)
+	e3:SetOperation(c810000169.posop)
+	c:RegisterEffect(e3)
+	-------------
+	if not c810000169.global_check then
+		c810000169.global_check=true
+		local cxyzm=Duel.CheckXyzMaterial
+		Duel.CheckXyzMaterial=function(c,f,lv,minc,maxc,og)
+			local g=Duel.GetMatchingGroup(function(fc,flg,f,lv,c)
+				return fc:GetFlagEffect(flg)>0 and fc:GetRank()==lv and (f==nil or f(fc))
+			end,c:GetControler(),LOCATION_MZONE,0,nil,810000169,f,lv,c)
+			minc=math.max(minc-g:GetCount(),0)
+			maxc=math.max(maxc-g:GetCount(),0)
+			return cxyzm(c,f,lv,minc,maxc,og)
+		end
+		local sxyzm=Duel.SelectXyzMaterial
+		Duel.SelectXyzMaterial=function(tp,c,f,lv,minc,maxc)
+			local g1=Duel.GetMatchingGroup(function(fc,flg,f,lv,c)
+				return fc:GetFlagEffect(flg)>0 and fc:GetRank()==lv and (f==nil or f(fc))
+			end,c:GetControler(),LOCATION_MZONE,0,nil,810000169,f,lv,c)
+			local b=false
+			local g2=Group.CreateGroup()
+			if minc-g1:GetCount()<1 then b=Duel.SelectYesNo(tp,aux.Stringid(810000169,0)) end
+			if not b then g2=sxyzm(tp,c,f,lv,math.max(minc-g1:GetCount(),1),maxc) end
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+			local g=Duel.SelectMatchingCard(tp,function(fc,flg,f,lv,c)
+				return fc:GetFlagEffect(flg)>0 and fc:GetRank()==lv and (f==nil or f(fc))
+			end,c:GetControler(),LOCATION_MZONE,0,minc-g2:GetCount(),maxc-g2:GetCount(),nil,810000169,f,lv,c)
+			local og=Group.CreateGroup()
+			local ogc=g:GetFirst()
+			while ogc do
+				og:Merge(ogc:GetOverlayGroup())
+				ogc=g:GetNext()
+			end
+			Duel.SendtoGrave(og,REASON_RULE)
+			g:Merge(g2)
+			return g
+			 
+		end
 	end
 end
-function c810000169.xyzop(e,tp,eg,ep,ev,re,r,rp,c,og)
-	local mat=e:GetLabelObject()
-	c:SetMaterial(mat)
-	Duel.Overlay(c,mat)
+function c810000169.filter(c)
+	return c:IsFaceup() and c:IsType(TYPE_EFFECT) and c:IsAttribute(ATTRIBUTE_LIGHT)
 end
-
-function c810000169.lfilter(c)
-	return c:IsFaceup() and c:IsType(TYPE_EFFECT) and c:IsAttribute(ATTRIBUTE_LIGHT) and not c:IsDisabled()
+function c810000169.postg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c810000169.filter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(c810000169.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+	Duel.SelectTarget(tp,c810000169.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DISABLE,g,1,0,0)
 end
-function c810000169.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c810000169.lfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c810000169.lfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	Duel.SelectTarget(tp,c810000169.lfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
-end
-function c810000169.activate(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
+function c810000169.posop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and tc:IsFaceup() and not tc:IsDisabled() then
+	if tc:IsFaceup() and tc:IsRelateToEffect(e) and not tc:IsDisabled() then
 		Duel.NegateRelatedChain(tc,RESET_TURN_SET)
-		local e1=Effect.CreateEffect(c)
+		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_DISABLE)
 		e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+RESET_END)
 		tc:RegisterEffect(e1)
-		local e2=Effect.CreateEffect(c)
+		local e2=Effect.CreateEffect(e:GetHandler())
 		e2:SetType(EFFECT_TYPE_SINGLE)
 		e2:SetCode(EFFECT_DISABLE_EFFECT)
 		e2:SetValue(RESET_TURN_SET)
 		e2:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+RESET_END)
 		tc:RegisterEffect(e2)
 	end
+end
+-----------------
+function c810000169.filter1(c)
+	return c:IsFaceup() and c:IsType(TYPE_XYZ) and c:GetFlagEffect(810000169)==0
 end
