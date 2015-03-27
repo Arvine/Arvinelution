@@ -49,7 +49,7 @@ function c810000153.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstMatchingCard(c810000153.filter2,tp,LOCATION_EXTRA,0,nil,tcode,e,tp)
 	if tc then
 		tc:SetMaterial(Group.FromCards(rg))
-		Duel.SendtoGrave(g,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
+		Duel.SendtoGrave(rg,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
 		Duel.BreakEffect()
 		Duel.SpecialSummon(tc,SUMMON_TYPE_FUSION,tp,tp,false,false,POS_FACEUP)
 		tc:CompleteProcedure()
