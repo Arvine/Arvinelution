@@ -1,4 +1,4 @@
---デストーイ・シザー・タイガー
+--Frightfur Sabre Tiger
 function c810000197.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
@@ -19,8 +19,27 @@ function c810000197.initial_effect(c)
 	e2:SetTarget(c810000197.destg)
 	e2:SetOperation(c810000197.desop)
 	c:RegisterEffect(e2)
+	--atk
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_FIELD)
+	e3:SetCode(EFFECT_UPDATE_ATTACK)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetTargetRange(LOCATION_MZONE,0)
+	e3:SetTarget(aux.TargetBoolFunction(Card.IsSetCard,0xad))
+	e3:SetValue(c810000197.atkval)
+	c:RegisterEffect(e3)
+	--
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e4:SetCode(EVENT_BE_MATERIAL)
+	e4:SetCondition(c810000197.immcon)
+	e4:SetOperation(c810000197.immop)
+	c:RegisterEffect(e4)
 end
 c810000197.material_count=1
+function c810000197.ffilter(c)
+	return (c:IsSetCard(0xad) and c:GetLevel()>=6)
+end
 function c810000197.mfilter(c,mg)
 	return (c:IsSetCard(0xad) and c:GetLevel()>=6) and (mg:IsExists(Card.IsSetCard,1,c,0xa9) or mg:IsExists(Card.IsSetCard,1,c,0xc3))
 end
@@ -31,26 +50,33 @@ function c810000197.fscon(e,mg,gc)
 	return mg:IsExists(c810000197.mfilter,1,nil,mg)
 end
 function c810000197.fsop(e,tp,eg,ep,ev,re,r,rp,gc)
-	if gc then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FMATERIAL)
-		--local g1=eg:FilterSelect(tp,Card.IsSetCard,1,63,nil,0xa9)
-		local g1=eg:Filter(Card.IsSetCard,nil,0xa9)
-		local g2=eg:Filter(Card.IsSetCard,nil,0xc3)
-		g1:merge(g2)
-		local sg=g1:Select(tp,1,99,nil)
-		Duel.SetFusionMaterial(sg)
-		return
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FMATERIAL)
+	local g1=eg:Filter(Card.IsSetCard,nil,0xa9)
+	local g2=eg:Filter(Card.IsSetCard,nil,0xc3)
+	local g3=eg:Filter(c810000197.ffilter,nil,tp)
+	local ag=g1:Clone()
+	ag:Merge(g2)
+	ag:Merge(g3)
+	local ct=63
+	local mg=Group.CreateGroup()
+	while ct>0 and Duel.SelectYesNo(tp,aux.Stringid(5632,3)) do
+		local tc=ag:Select(tp,1,1,nil):GetFirst()
+		ag:RemoveCard(tc)
+		if tc:GetCode()==464362 or tc:GetCode()==10383554 or tc:GetCode()==11039171 or tc:GetCode()==83866861 or tc:GetCode()==85545073
+			or tc:GetCode()==810000109 or tc:GetCode()==810000110 or tc:GetCode()==810000197 then
+			ag:Remove(Card.IsCode,nil,464362)
+			ag:Remove(Card.IsCode,nil,10383554)
+			ag:Remove(Card.IsCode,nil,11039171)
+			ag:Remove(Card.IsCode,nil,83866861)
+			ag:Remove(Card.IsCode,nil,85545073)
+			ag:Remove(Card.IsCode,nil,810000109)
+			ag:Remove(Card.IsCode,nil,810000110)
+			ag:Remove(Card.IsCode,nil,810000197)
+			ct=ct-1
+		end
+		mg:AddCard(tc)
 	end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FMATERIAL)
-	local g1=eg:FilterSelect(tp,c810000197.mfilter,1,1,nil,eg)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FMATERIAL)
-	--local g2=eg:FilterSelect(tp,Card.IsSetCard,1,63,g1:GetFirst(),0xa9)
-	local g2=eg:Filter(Card.IsSetCard,nil,0xa9)
-	local g3=eg:Filter(Card.IsSetCard,nil,0xc3)
-	g2:merge(g3)
-	local sg=g2:Select(tp,1,99,nil)
-	g1:Merge(sg)
-	Duel.SetFusionMaterial(g1)
+	Duel.SetFusionMaterial(mg)
 end
 
 function c810000197.filter2(c)
@@ -72,4 +98,26 @@ function c810000197.desop(e,tp,eg,ep,ev,re,r,rp)
 	if tc:IsRelateToEffect(e) then
 		Duel.SpecialSummonStep(tc,0,tp,tp,true,false,POS_FACEUP)
 	end
+end
+
+function c810000197.atkfilter(c)
+	return c:IsFaceup() and (c:IsSetCard(0xa9) or c:IsSetCard(0xad))
+end
+function c810000197.atkval(e,c)
+	return Duel.GetMatchingGroupCount(c810000197.atkfilter,c:GetControler(),LOCATION_MZONE,0,nil)*400
+end
+
+function c810000197.immcon(e,tp,eg,ep,ev,re,r,rp)
+	return r==REASON_FUSION
+end
+function c810000197.immop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local rc=c:GetReasonCard()
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(2095764,1))
+	e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+	e1:SetReset(RESET_EVENT+0x1fe0000)
+	rc:RegisterEffect(e1)
 end
