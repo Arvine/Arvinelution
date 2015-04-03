@@ -26,6 +26,7 @@ function c810000202.initial_effect(c)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e3:SetCountLimit(1,8100002020)
+	e3:SetCost(c810000202.cost2)
 	e3:SetTarget(c810000202.target2)
 	e3:SetOperation(c810000202.operation2)
 	c:RegisterEffect(e3)
@@ -42,12 +43,18 @@ function c810000202.target1(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
 function c810000202.operation1(e,tp,eg,ep,ev,re,r,rp)
+	local g=Group.CreateGroup()
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
-		Duel.Destroy(tc,REASON_EFFECT)
+		g:AddCard(e:GetHandler())
+		Duel.Destroy(g,REASON_EFFECT)
 	end
 end
 
+function c810000202.cost2(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsReleasable() end
+	Duel.Release(e:GetHandler(),REASON_COST)
+end
 function c810000202.target2(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsDestructable() end
 	if chk==0 then return Duel.IsExistingTarget(Card.IsDestructable,tp,LOCATION_MZONE,LOCATION_MZONE,1,e:GetHandler()) end
