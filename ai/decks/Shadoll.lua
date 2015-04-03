@@ -296,6 +296,7 @@ end
 function SummonMath()
   return true
 end
+
 function ShadollOnSelectInit(cards, to_bp_allowed, to_ep_allowed)
   local Activatable = cards.activatable_cards
   local Summonable = cards.summonable_cards
@@ -829,7 +830,7 @@ function ArtifactCheck(sanctum,scythe)
       else 
         GlobalCardMode = 1
       end
-      GlobalTargetSet(FindID(20292186,AIST()),AIST())
+      GlobalTargetSet(FindID(12697630,AIST()),AIST())
       return true
     end
     if CheckScythe then

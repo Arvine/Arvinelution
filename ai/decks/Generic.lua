@@ -22,6 +22,9 @@ function SummonExtraDeck(cards,prio)
    if HasIDNotNegated(SpSum,07409792) then 
     --return {COMMAND_SPECIAL_SUMMON,CurrentIndex}                                -- test
   end
+  if HasIDNotNegated(Rep,12014404,false,nil,nil,POS_FACEUP_ATTACK) and UseCowboyDef() then 
+    return {COMMAND_CHANGE_POS,CurrentIndex}                                -- Gagaga Cowboy finish
+  end
   if HasIDNotNegated(Act,12014404,false,nil,nil,POS_DEFENCE) and UseCowboyDef() then 
     return {COMMAND_ACTIVATE,CurrentIndex}                                -- Gagaga Cowboy finish
   end
@@ -57,6 +60,12 @@ function SummonExtraDeck(cards,prio)
   if HasIDNotNegated(Act,05133471,nil,nil,LOCATION_HAND+LOCATION_ONFIELD) 
   and UseGalaxyCyclone(1) 
   then  
+    return {COMMAND_ACTIVATE,CurrentIndex}
+  end
+  if HasID(Act,05318639,nil,nil,LOCATION_SZONE,UseMST) then
+    return {COMMAND_ACTIVATE,CurrentIndex}
+  end
+  if HasID(Act,05318639,UseMST) then
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
 ---- 
@@ -312,7 +321,6 @@ function SummonExtraDeck(cards,prio)
     return XYZSummon()
   end
   if HasIDNotNegated(Act,91499077) and UseGagagaSamurai() then
-    Global1PTGunman = 1
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
   if HasIDNotNegated(SpSum,34086406) and SummonLavalvalChain() then -- Lavalval Chain
@@ -346,9 +354,15 @@ function SummonExtraDeck(cards,prio)
   if HasIDNotNegated(SpSum,12014404) and SummonCowboyAtt() then -- Cowboy
     return XYZSummon()
   end
-  if HasIDNotNegated(Act,12014404) and UseCowboyAtt() then
+  if HasIDNotNegated(Rep,12014404,nil,nil,POS_DEFENCE,UseCowboyAtt) then
+    return {COMMAND_CHANGE_POS,CurrentIndex}
+  end
+  if HasIDNotNegated(Act,12014404,FilterPosition,POS_FACEUP_ATTACK) and UseCowboyAtt() then
     Global1PTGunman = 1
     return {COMMAND_ACTIVATE,CurrentIndex}
+  end
+  if HasIDNotNegated(SpSum,12014404) and SummonCowboyDef(2) then -- Cowboy
+    return XYZSummon()
   end
   
 -- Rank 3
@@ -390,6 +404,21 @@ function SummonExtraDeck(cards,prio)
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
   return nil
+end
+function UseMST(c)
+  local filter = function(c) 
+    return FilterPosition(c,POS_FACEDOWN)
+    and FilterPrivate(c)
+    and DestroyFilter(c)
+  end
+  if (#AIField()==0 
+  or #AIField()==CardsMatchingFilter(AIField(),FilterID,05318639))
+  and CardsMatchingFilter(OppST(),filter)>0
+  and CardsMatchingFilter(OppST(),filter)<=CardsMatchingFilter(AICards(),FilterID,05318639)
+  then
+    return true
+  end
+  return false
 end
 function SummonStardust(c)
   return OppGetStrongestAttDef()<2500 and MP2Check()
@@ -448,8 +477,9 @@ function SummonBelzebuth()
   local OppCards=UseLists({OppHand(),OppField()})
   return #AICards<=#OppCards and UseFieldNuke(-1)
 end
-function SummonCowboyDef()
+function SummonCowboyDef(mode)
   return AI.GetPlayerLP(2)<=800 
+  or mode == 2 and MP2Check() and AI.GetPlayerLP(2)<=1600 
 end
 function SummonPaladynamo()
   local cards = OppMon()
@@ -491,7 +521,7 @@ function SummonChidori(c,mode)
     return true
   end
   if mode == 2 
-  and HasPriorityTarget(OppField(),ChidoriFilter,POS_FACEUP)
+  and HasPriorityTarget(OppField(),false,nil,ChidoriFilter,POS_FACEUP)
   then
     return true
   end
@@ -552,7 +582,9 @@ function UseJeweledRDA(card,mod)
   local AITargets=SubGroup(aimon,JeweledRDAFilter,card.cardid)
   local OppTargets=SubGroup(OppMon(),JeweledRDAFilter,card.cardid)
   local diff=(#OppTargets+mod)-#AITargets
-  if HasIDNotNegated(aimon,83994433,true) and GlobalStardustSparkActivation[aimon[CurrentIndex].cardid]~=Duel.GetTurnCount() then
+  if HasIDNotNegated(aimon,83994433,true,OPTCheck) 
+  --and GlobalStardustSparkActivation[aimon[CurrentIndex].cardid]~=Duel.GetTurnCount() 
+  then
     diff = diff+1
   end
   AITargets[#AITargets+1]=card
@@ -579,7 +611,9 @@ function UseDarkHole()
   local AITargets=DestroyCheck(AIMon(),true)
   local OppTargets=DestroyCheck(OppMon(),true)
   local diff=OppTargets-AITargets
-  if HasIDNotNegated(aimon,83994433,true) and GlobalStardustSparkActivation[aimon[CurrentIndex].cardid]~=Duel.GetTurnCount() then
+  if HasIDNotNegated(aimon,83994433,true,OPTCheck) 
+  --and GlobalStardustSparkActivation[aimon[CurrentIndex].cardid]~=Duel.GetTurnCount() 
+  then
     diff = diff+1
   end
   if HasIDNotNegated(AIST(),27243130,true) or HasID(AIHand(),27243130,true) then
@@ -720,12 +754,13 @@ function CowboyFilter(c)
   and c:is_affected_by(EFFECT_INDESTRUCTABLE_BATTLE)==0 
   and c:is_affected_by(EFFECT_CANNOT_BE_BATTLE_TARGET)==0)
 end
-function UseCowboyAtt()
+function UseCowboyAtt(c)
   return CardsMatchingFilter(OppMon(),CowboyFilter)>0 
   and Duel.GetCurrentPhase()==PHASE_MAIN1 and GlobalBPAllowed
+  and (c == nil or c.xyz_material_count>0)
 end
 function SummonCowboyAtt()
-  return OppHasStrongestMonster() and UseCowboyAtt() and MP2Check()
+  return OppHasStrongestMonster() and UseCowboyAtt() and BattlePhaseCheck()
 end
 function SkyblasterFilter(c)
   return bit32.band(c.position,POS_FACEUP)>0 and c:is_affected_by(EFFECT_CANNOT_BE_EFFECT_TARGET)==0
@@ -1151,9 +1186,9 @@ function SummonVulcan(c)
 end
 function UseGalaxyCyclone(mode)
   if mode == 1 then
-    return DestroyCheck(OppST(),false,false,FilterPosition,POS_FACEDOWN)
+    return DestroyCheck(OppST(),false,false,FilterPosition,POS_FACEDOWN)>0
   end
-  return DestroyCheck(OppST(),false,false,FilterPosition,POS_FACEUP)
+  return DestroyCheck(OppST(),false,false,FilterPosition,POS_FACEUP)>0
 end
 ----
 
@@ -1592,6 +1627,9 @@ function PriorityChain(cards) -- chain these before anything else
     return {1,CurrentIndex}
   end
 
+  if HasIDNotNegated(cards,82732705,ChainSkillDrain) then
+    return {1,CurrentIndex}
+  end
   if HasIDNotNegated(cards,78474168,ChainBTS) then
     return {1,CurrentIndex}
   end
