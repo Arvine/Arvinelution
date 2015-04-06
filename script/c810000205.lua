@@ -1,5 +1,6 @@
 --Gem-Knight Lady Brilliant Diamond
 function c810000205.initial_effect(c)
+	c:SetSPSummonOnce(810000205)
 	--fusion material
 	c:EnableReviveLimit()
 	aux.AddFusionProcFunRep(c,aux.FilterBoolFunction(Card.IsSetCard,0x1047),3,false)
@@ -19,7 +20,7 @@ end
 function c810000205.cfilter(c)
 	return c:IsSetCard(0x1047) and c:IsAbleToGraveAsCost()
 end
-function c810000205.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
+function c810000205.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c810000205.cfilter,tp,LOCATION_HAND,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local g=Duel.SelectMatchingCard(tp,c810000205.cfilter,tp,LOCATION_HAND,0,1,1,nil)
