@@ -128,6 +128,10 @@ function c810000204.posop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetValue(ec:GetBaseAttack())
 		e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_STANDBY,2)
 		ec:RegisterEffect(e1)
+		local e2=e1:Clone()
+		e2:SetCode(EFFECT_UPDATE_DEFENCE)
+		e2:SetValue(ec:GetBaseDefence())
+		ec:RegisterEffect(e2)
 	end
 end
 
