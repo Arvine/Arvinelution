@@ -18,7 +18,7 @@ function c810000205.initial_effect(c)
 end
 
 function c810000205.cfilter(c)
-	return c:IsSetCard(0x1047) and c:IsAbleToGraveAsCost()
+	return c:IsSetCard(0x1047) and c:IsType(TYPE_MONSTER) and c:IsAbleToGraveAsCost()
 end
 function c810000205.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c810000205.cfilter,tp,LOCATION_HAND,0,1,nil) end
