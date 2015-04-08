@@ -21,9 +21,9 @@ function c810000205.cfilter(c)
 	return c:IsSetCard(0x1047) and c:IsType(TYPE_MONSTER) and c:IsAbleToGraveAsCost()
 end
 function c810000205.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c810000205.cfilter,tp,LOCATION_HAND,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c810000205.cfilter,tp,LOCATION_EXTRA,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,c810000205.cfilter,tp,LOCATION_HAND,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,c810000205.cfilter,tp,LOCATION_EXTRA,0,1,1,nil)
 	Duel.SendtoGrave(g,REASON_COST)
 end
 function c810000205.tgfilter(c,e,tp)
