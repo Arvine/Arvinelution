@@ -18,40 +18,41 @@ function c5686.initial_effect(c)
 	e2:SetValue(10000052)
 	c:RegisterEffect(e2)
 end
-function c5686.tgfilter0(c,e,tp)
-	return c:IsFaceup() and c:IsRace(RACE_DRAGON)
-		and c:IsCanBeFusionMaterial() and Duel.IsExistingMatchingCard(c5686.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp)
+c5686.list={[RACE_DRAGON]=810000211}
+function c5686.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	e:SetLabel(1)
+	return true
 end
-function c5686.tgfilter(c,e,tp)
-	return c:IsFaceup() and c:IsRace(RACE_DRAGON)
-		and c:IsCanBeFusionMaterial() and not c:IsImmuneToEffect(e)
-		and Duel.IsExistingMatchingCard(c5686.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp)
+function c5686.filter1(c,tp)
+	local race=c:GetRace()
+	local trace=c5686.list[race]
+	return trace and Duel.IsExistingMatchingCard(c5686.filter2,tp,LOCATION_EXTRA,0,1,nil,trace,tp,c)
 end
-function c5686.spfilter(c,e,tp,code)
-	if not c:IsCode(810000211) or not c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) then return false end
-	return false
+function c5686.filter2(c,trace,tp,z)
+	return c:IsRace(trace) and c:IsCanBeSpecialSummoned(e,0,tp,true,true)
 end
-function c5686.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc==0 then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and c5686.tgfilter(chkc,e,tp) end
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>-1
-		and Duel.IsExistingTarget(c5686.tgfilter0,tp,LOCATION_MZONE+LOCATION_HAND,0,1,nil,e,tp) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	Duel.SelectTarget(tp,c5686.tgfilter,tp,LOCATION_MZONE,0,1,1,nil,e,tp)
+function c5686.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(c5686.filter,tp,LOCATION_MZONE+LOCATION_HAND,0,1,nil,e,tp) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 function c5686.activate(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<0 then return end
-	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and tc:IsFaceup() and tc:IsCanBeFusionMaterial() and not tc:IsImmuneToEffect(e) then
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return false end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+	local g=Duel.SelectMatchingCard(tp,c5686.filter,tp,LOCATION_MZONE+LOCATION_HAND,0,1,1,nil,e,tp)
+	if g:GetCount()>0 then 
+	    local tc=g:GetFirst()
+        local trace=c5686.list[tc:GetRace()]
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local sg=Duel.SelectMatchingCard(tp,c5686.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
-		local sc=sg:GetFirst()
-		if sc then
-			sc:SetMaterial(Group.FromCards(tc))
-			Duel.SendtoGrave(tc,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
+		local tc1=Duel.SelectMatchingCard(tp,c5686.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,trace)
+		local sc=tc1:GetFirst()
+		if sc then 
+		    sc:SetMaterial(g)
+			if tc:IsFacedown() then Duel.ConfirmCards(1-tp,g) end
+			Duel.SendtoGrave(tc,REASON_EFFECT)
 			Duel.BreakEffect()
-			Duel.SpecialSummon(sc,SUMMON_TYPE_FUSION,tp,tp,false,false,POS_FACEUP)
+			Duel.SpecialSummon(sc,0,tp,tp,true,true,POS_FACEUP)
 			sc:CompleteProcedure()
-		end
+		end		
 	end
 end
