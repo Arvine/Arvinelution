@@ -39,17 +39,10 @@ function c810000211.eqop(e,tp,eg,ep,ev,re,r,rp)
 	end
 	if not Duel.Equip(tp,c,tc,false) then return end
 	--Atk up
-	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_EQUIP)
-	e2:SetCode(EFFECT_UPDATE_ATTACK)
-	e2:SetValue(1000)
-	e2:SetReset(RESET_EVENT+0x1fe0000)
-	c:RegisterEffect(e2)
-	--Atk up
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_EQUIP)
 	e3:SetCode(EFFECT_UPDATE_ATTACK)
-	e3:SetValue(c53610653.atkval)
+	e3:SetValue(c810000211.atkval)
 	c:RegisterEffect(e3)
 	--eqlimit
 	local e4=Effect.CreateEffect(c)
@@ -66,7 +59,7 @@ function c810000211.eqlimit(e,c)
 end
 
 function c810000211.atkval(e,c)
-	return Duel.GetMatchingGroupCount(c810000211.atkfilter,c:GetControler(),0,LOCATION_GRAVE+LOCATION_MZONE,nil)*500
+	return Duel.GetMatchingGroupCount(c810000211.atkfilter,c:GetControler(),LOCATION_GRAVE+LOCATION_MZONE,LOCATION_GRAVE+LOCATION_MZONE,nil)*500+1000
 end
 function c810000211.atkfilter(c)
 	return c:IsRace(RACE_DRAGON) and (c:IsLocation(LOCATION_GRAVE) or c:IsFaceup())

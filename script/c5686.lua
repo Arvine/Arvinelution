@@ -18,18 +18,18 @@ function c5686.initial_effect(c)
 	e2:SetValue(10000052)
 	c:RegisterEffect(e2)
 end
-c5686.list={[RACE_DRAGON]=810000211}
+
 function c5686.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:SetLabel(1)
 	return true
 end
 function c5686.filter1(c,tp)
-	local race=c:GetRace()
-	local trace=c5686.list[race]
-	return trace and Duel.IsExistingMatchingCard(c5686.filter2,tp,LOCATION_EXTRA,0,1,nil,trace,tp,c)
+	if Duel.IsEnvironment(4064256) then rc=RACE_ZOMBIE
+		else race=c:GetOriginalRace() end
+	return c:IsRace(RACE_DRAGON) and trace and Duel.IsExistingMatchingCard(c5686.filter2,tp,LOCATION_EXTRA,0,1,nil,tp,c)
 end
-function c5686.filter2(c,trace,tp,z)
-	return c:IsRace(trace) and c:IsCanBeSpecialSummoned(e,0,tp,true,true)
+function c5686.filter2(c,race,tp)
+	return c:IsCanBeSpecialSummoned(e,0,tp,true,true) and c:IsCode(810000211)
 end
 function c5686.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
@@ -41,10 +41,9 @@ function c5686.activate(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
 	local g=Duel.SelectMatchingCard(tp,c5686.filter,tp,LOCATION_MZONE+LOCATION_HAND,0,1,1,nil,e,tp)
 	if g:GetCount()>0 then 
-	    local tc=g:GetFirst()
-        local trace=c5686.list[tc:GetRace()]
+	  local tc=g:GetFirst() 
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local tc1=Duel.SelectMatchingCard(tp,c5686.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,trace)
+		local tc1=Duel.SelectMatchingCard(tp,c5686.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
 		local sc=tc1:GetFirst()
 		if sc then 
 		    sc:SetMaterial(g)
