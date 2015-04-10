@@ -23,17 +23,15 @@ function c5686.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:SetLabel(1)
 	return true
 end
-function c5686.filter1(c,tp)
-	if Duel.IsEnvironment(4064256) then rc=RACE_ZOMBIE
-		else race=c:GetOriginalRace() end
-	return c:IsRace(RACE_DRAGON) and trace and Duel.IsExistingMatchingCard(c5686.filter2,tp,LOCATION_EXTRA,0,1,nil,tp,c)
+function c5686.filter(c,tp)
+	return c:IsRace(RACE_DRAGON) and Duel.IsExistingMatchingCard(c5686.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp)
 end
-function c5686.filter2(c,race,tp)
-	return c:IsCanBeSpecialSummoned(e,0,tp,true,true) and c:IsCode(810000211)
+function c5686.spfilter(c)
+	return c:IsCode(810000211)
 end
 function c5686.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(c5686.filter,tp,LOCATION_MZONE+LOCATION_HAND,0,1,nil,e,tp) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 end
+		and Duel.IsExistingMatchingCard(c5686.filter,tp,LOCATION_MZONE+LOCATION_HAND,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 function c5686.activate(e,tp,eg,ep,ev,re,r,rp)
