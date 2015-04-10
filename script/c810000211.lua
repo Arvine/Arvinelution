@@ -65,9 +65,9 @@ function c810000211.eqlimit(e,c)
 	return c==e:GetLabelObject()
 end
 
-function c810000212.atkval(e,c)
-	return Duel.GetMatchingGroupCount(c810000212.atkfilter,c:GetControler(),0,LOCATION_GRAVE+LOCATION_MZONE,nil)*500
+function c810000211.atkval(e,c)
+	return Duel.GetMatchingGroupCount(c810000211.atkfilter,c:GetControler(),0,LOCATION_GRAVE+LOCATION_MZONE,nil)*500
 end
-function c810000212.atkfilter(c)
+function c810000211.atkfilter(c)
 	return c:IsRace(RACE_DRAGON) and (c:IsLocation(LOCATION_GRAVE) or c:IsFaceup())
 end
