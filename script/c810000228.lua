@@ -32,7 +32,7 @@ function c810000228.initial_effect(c)
 end
 
 function c810000228.filter2(c)
-	return c:IsFaceup() and (c:IsSetCard(0x99) or c:IsSetCard(0x98)) and c:IsType(TYPE_PENDULUM) and not c:IsCode(810000228) and c:IsAbleToHand()
+	return (c:IsSetCard(0x98) or c:IsSetCard(0x99)) and c:IsType(TYPE_PENDULUM) and not c:IsCode(810000228) and c:IsAbleToHand()
 end
 function c810000228.descon(e,tp,eg,ep,ev,re,r,rp)
 	local seq=e:GetHandler():GetSequence()
@@ -40,8 +40,8 @@ function c810000228.descon(e,tp,eg,ep,ev,re,r,rp)
 	return not tc or (not tc:IsSetCard(0x98) and not tc:IsSetCard(0x99))
 end
 function c810000228.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingTarget(c95281259.filter2,tp,LOCATION_EXTRA,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
+	if chk==0 then return Duel.IsExistingTarget(c810000228.filter2,tp,LOCATION_EXTRA,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_EXTRA)
 end
 function c810000228.desop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
@@ -56,10 +56,10 @@ function c810000228.filter(c)
 	return (c:IsSetCard(0x99) or c:IsSetCard(0x98)) and c:IsType(TYPE_MONSTER) and not c:IsCode(810000228) and c:IsAbleToHand()
 end
 function c810000228.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:GetControler()==tp and chkc:GetLocation()==LOCATION_GRAVE and c95281259.filter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c95281259.filter,tp,LOCATION_GRAVE,0,1,nil) end
+	if chkc then return chkc:GetControler()==tp and chkc:GetLocation()==LOCATION_GRAVE and c810000228.filter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(c810000228.filter,tp,LOCATION_GRAVE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectTarget(tp,c95281259.filter,tp,LOCATION_GRAVE,0,1,1,nil)
+	local g=Duel.SelectTarget(tp,c810000228.filter,tp,LOCATION_GRAVE,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
 function c810000228.thop(e,tp,eg,ep,ev,re,r,rp)

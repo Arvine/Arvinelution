@@ -90,6 +90,9 @@ function c810000214.operation(e,tp,eg,ep,ev,re,r,rp)
 			if tc:IsCode(74605254) then
 			e1:SetValue(1)
 		end
+			if tc:IsCode(5665) then
+			e1:SetValue(8)
+		end
 		e1:SetReset(RESET_EVENT+0x1ff0000+RESET_PHASE+PHASE_END)
 		tc:RegisterEffect(e1)
 		local e2=e1:Clone()
