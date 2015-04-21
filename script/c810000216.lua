@@ -27,7 +27,7 @@ function c810000216.initial_effect(c)
 end
 
 function c810000216.spfilter(c,e,tp)
-	return c:IsSetCode(0x99) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0x99) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c810000216.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
